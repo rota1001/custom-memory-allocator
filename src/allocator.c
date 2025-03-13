@@ -42,3 +42,19 @@ static block_t **find_node(block_t **root, block_t *target)
 
     return root;
 }
+
+static block_t **find_node_by_size(block_t **root, size_t size)
+{
+    while (*root) {
+        if ((*root)->l && ((*root)->l->size >= size))
+            root = &(*root)->l;
+        else if ((*root)->size >= size)
+            break;
+        else
+            root = &(*root)->r;
+    }
+    if (!(*root))
+        return NULL;
+
+    return root;
+}
