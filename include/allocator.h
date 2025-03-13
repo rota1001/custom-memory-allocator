@@ -33,3 +33,19 @@ allocator_t *alloc_create(size_t size);
  * @root: the root node
  */
 void print_tree(block_t *root);
+
+
+/**
+ * alloc_alloc - Allocate memory with allocator and size
+ * If there is not any invalid block, it will return NULL
+ * @allocator: the allocator
+ * @size: the size of memory needed
+ */
+void *alloc_alloc(allocator_t *allocator, size_t size);
+
+/**
+ * alloc_free - Free an allocated memory
+ * @allocator: the allocator
+ * @ptr: pointer to the memory region
+ */
+void alloc_free(allocator_t *allocator, void *ptr);

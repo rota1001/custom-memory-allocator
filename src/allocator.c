@@ -114,3 +114,22 @@ allocator_t *alloc_create(size_t size)
     last_block->size = 1;
     return allocator;
 }
+
+void *alloc_alloc(allocator_t *allocator, size_t size)
+{
+    size = ALIGN_UP(size);
+    block_t **pblock =
+        find_node_by_size(&allocator->root, size + sizeof(block_t) * 2);
+    if (!pblock)
+        return NULL;
+
+    block_t *block = *pblock,
+            *left_block = (block_t *) ((char *) block + size + sizeof(block_t));
+    remove_node(pblock);
+    left_block->size = block->size - size - sizeof(block_t);
+    block->size = (size + sizeof(block_t)) | 1;
+    left_block->prev_size = block->size;
+    insert_node(&allocator->root, left_block);
+
+    return block->mem;
+}
