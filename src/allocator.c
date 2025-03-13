@@ -58,3 +58,43 @@ static block_t **find_node_by_size(block_t **root, size_t size)
 
     return root;
 }
+
+
+/*
+ * Structure representing a free memory block in the memory allocator.
+ * The free tree is a binary search tree that organizes free blocks (of type
+ * block_t) to efficiently locate a block of appropriate size during memory
+ * allocation.
+ */
+static void remove_node(block_t **node_ptr)
+{
+    block_t *target = *node_ptr;
+
+    if ((*node_ptr)->l && (*node_ptr)->r) {
+        block_t **pred_ptr = &(*node_ptr)->l;
+
+        while ((*pred_ptr)->r)
+            pred_ptr = &(*pred_ptr)->r;
+
+        if (*pred_ptr == (*node_ptr)->l) {
+            block_t *old_right = (*node_ptr)->r;
+            *node_ptr = *pred_ptr;
+            (*node_ptr)->r = old_right;
+        } else {
+            block_t *old_left = (*node_ptr)->l;
+            block_t *old_right = (*node_ptr)->r;
+            block_t *pred_node = *pred_ptr;
+            remove_node(pred_ptr);
+            *node_ptr = pred_node;
+            (*node_ptr)->l = old_left;
+            (*node_ptr)->r = old_right;
+        }
+    } else if ((*node_ptr)->l || (*node_ptr)->r) {
+        block_t *child = ((*node_ptr)->l) ? (*node_ptr)->l : (*node_ptr)->r;
+        *node_ptr = child;
+    } else
+        *node_ptr = NULL;
+
+    target->l = NULL;
+    target->r = NULL;
+}
