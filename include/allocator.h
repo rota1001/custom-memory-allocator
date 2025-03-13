@@ -7,6 +7,19 @@
 #define PREV_INUSE(block) (((block_t *) (block))->prev_size & 1)
 #define INUSE(block) (((block_t *) (block))->size & 1)
 
+#define CLEAR_USE_BIT(size) ((size) & ~0x1)
+
+#define NEXT_BLOCK(block) \
+    ((block_t *) ((char *) (block) + CLEAR_USE_BIT(((block_t *) (block))->size)))
+#define PREV_BLOCK(block) \
+    ((block_t *) ((char *) (block) - CLEAR_USE_BIT(((block_t *) (block))->prev_size)))
+
+#define NEXT_INUSE(block) (INUSE(NEXT_BLOCK(block)))
+
+#ifndef container_of
+#define container_of(ptr, type, member) \
+    ((type *) ((char *) (ptr) - offsetof(type, member)))
+#endif
 
 typedef struct block {
     size_t size;

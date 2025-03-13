@@ -133,3 +133,28 @@ void *alloc_alloc(allocator_t *allocator, size_t size)
 
     return block->mem;
 }
+
+block_t *merge(block_t *l, block_t *r)
+{
+    l->size = CLEAR_USE_BIT(l->size) + CLEAR_USE_BIT(r->size);
+    return l;
+}
+
+void alloc_free(allocator_t *allocator, void *ptr)
+{
+    block_t *block = container_of(ptr, block_t, mem);
+    block_t **pblock;
+    if (!PREV_INUSE(block)) {
+        pblock = find_node(&allocator->root, PREV_BLOCK(block));
+        remove_node(pblock);
+        block = merge(PREV_BLOCK(block), block);
+    }
+    if (!NEXT_INUSE(block)) {
+        pblock = find_node(&allocator->root, NEXT_BLOCK(block));
+        remove_node(pblock);
+        block = merge(block, NEXT_BLOCK(block));
+    }
+    block->size = CLEAR_USE_BIT(block->size);
+    NEXT_BLOCK(block)->prev_size = block->size;
+    insert_node(&allocator->root, block);
+}
