@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 #define ALIGN_UP(size) (((size) + 7) & ~0x7)
-#define PREV_INUSE(block) (((block_t *)(block))->prev_size & 1)
-#define INUSE(block) (((block_t *)(block))->size & 1)
+#define PREV_INUSE(block) (((block_t *) (block))->prev_size & 1)
+#define INUSE(block) (((block_t *) (block))->size & 1)
 
 
 typedef struct block {
@@ -19,7 +19,7 @@ typedef struct allocator {
     size_t size;
     block_t *root;
     char mem[0];
-}allocator_t;
+} allocator_t;
 
 /**
  * alloc_create - Create a new allocator with a

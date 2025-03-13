@@ -102,11 +102,12 @@ static void remove_node(block_t **node_ptr)
 allocator_t *alloc_create(size_t size)
 {
     size = ALIGN_UP(size);
-    allocator_t *allocator = malloc(sizeof(allocator_t) + sizeof(block_t) * 2 + size);
+    allocator_t *allocator =
+        malloc(sizeof(allocator_t) + sizeof(block_t) * 2 + size);
     allocator->size = size;
     allocator->root = NULL;
-    block_t *first_block = (block_t *)(allocator + 1);
-    block_t *last_block = (block_t *)(first_block->mem + size);
+    block_t *first_block = (block_t *) (allocator + 1);
+    block_t *last_block = (block_t *) (first_block->mem + size);
     first_block->size = size + sizeof(block_t);
     first_block->prev_size = 1;
     insert_node(&allocator->root, first_block);
