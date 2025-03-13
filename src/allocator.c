@@ -107,7 +107,7 @@ allocator_t *alloc_create(size_t size)
     allocator->root = NULL;
     block_t *first_block = (block_t *)(allocator + 1);
     block_t *last_block = (block_t *)(first_block->mem + size);
-    first_block->size = size;
+    first_block->size = size + sizeof(block_t);
     first_block->prev_size = 1;
     insert_node(&allocator->root, first_block);
     last_block->size = 1;
