@@ -25,6 +25,7 @@ typedef struct block {
     size_t size;
     size_t prev_size;
     struct block *l, *r;
+    struct block **pparent;
     char mem[0];
 } block_t;
 

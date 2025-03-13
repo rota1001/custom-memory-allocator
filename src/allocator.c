@@ -4,14 +4,14 @@
 static void insert_node(block_t **root, block_t *block)
 {
     while (*root)
-        if ((*root)->size < block->size ||
-            (((*root)->size == block->size) && ((*root) < block)))
+        if ((*root)->size < block->size)
             root = &(*root)->r;
         else
             root = &(*root)->l;
 
     block->l = block->r = NULL;
     *root = block;
+    block->pparent = root;
 }
 
 void print_tree(block_t *root)
@@ -23,23 +23,6 @@ void print_tree(block_t *root)
     print_tree(root->r);
 }
 
-static block_t **find_node(block_t **root, block_t *target)
-{
-    while (*root) {
-        if (*root == target)
-            break;
-        else if ((*root)->size > target->size ||
-                 (((*root)->size == target->size) && (*root >= target)))
-            root = &(*root)->l;
-        else
-            root = &(*root)->r;
-    }
-
-    if (!(*root) || (*root != target))
-        return NULL;
-
-    return root;
-}
 
 static block_t **find_node_by_size(block_t **root, size_t size)
 {
@@ -79,19 +62,25 @@ static void remove_node(block_t **node_ptr)
         if (*pred_ptr == (*node_ptr)->l) {
             block_t *old_right = (*node_ptr)->r;
             *node_ptr = *pred_ptr;
+            (*pred_ptr)->pparent = node_ptr;
             (*node_ptr)->r = old_right;
+            old_right->pparent = &(*node_ptr)->r;
         } else {
             block_t *old_left = (*node_ptr)->l;
             block_t *old_right = (*node_ptr)->r;
             block_t *pred_node = *pred_ptr;
             remove_node(pred_ptr);
             *node_ptr = pred_node;
+            pred_node->pparent = node_ptr;
             (*node_ptr)->l = old_left;
             (*node_ptr)->r = old_right;
+            old_left->pparent = &(*node_ptr)->l;
+            old_right->pparent = &(*node_ptr)->r;
         }
     } else if ((*node_ptr)->l || (*node_ptr)->r) {
         block_t *child = ((*node_ptr)->l) ? (*node_ptr)->l : (*node_ptr)->r;
         *node_ptr = child;
+        child->pparent = node_ptr;
     } else
         *node_ptr = NULL;
 
@@ -146,12 +135,12 @@ void alloc_free(allocator_t *allocator, void *ptr)
     block_t *block = container_of(ptr, block_t, mem);
     block_t **pblock;
     if (!PREV_INUSE(block)) {
-        pblock = find_node(&allocator->root, PREV_BLOCK(block));
+        pblock = PREV_BLOCK(block)->pparent;
         remove_node(pblock);
         block = merge(PREV_BLOCK(block), block);
     }
     if (!NEXT_INUSE(block)) {
-        pblock = find_node(&allocator->root, NEXT_BLOCK(block));
+        pblock = NEXT_BLOCK(block)->pparent;
         remove_node(pblock);
         block = merge(block, NEXT_BLOCK(block));
     }
