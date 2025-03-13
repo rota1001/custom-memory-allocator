@@ -127,6 +127,7 @@ void *alloc_alloc(allocator_t *allocator, size_t size)
             *left_block = (block_t *) ((char *) block + size + sizeof(block_t));
     remove_node(pblock);
     left_block->size = block->size - size - sizeof(block_t);
+    NEXT_BLOCK(left_block)->prev_size = left_block->size;
     block->size = (size + sizeof(block_t)) | 1;
     left_block->prev_size = block->size;
     insert_node(&allocator->root, left_block);
