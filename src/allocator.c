@@ -111,4 +111,5 @@ allocator_t *alloc_create(size_t size)
     first_block->prev_size = 1;
     insert_node(&allocator->root, first_block);
     last_block->size = 1;
+    return allocator;
 }
