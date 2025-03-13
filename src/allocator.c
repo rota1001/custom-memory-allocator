@@ -26,13 +26,11 @@ void print_tree(block_t *root)
 static block_t **find_node(block_t **root, block_t *target)
 {
     while (*root) {
-        if ((*root)->l &&
-            (((*root)->l->size > target->size) ||
-             (((*root)->l->size == target->size) && ((*root)->l >= target))))
-            root = &(*root)->l;
+        if (*root == target)
+            break;
         else if ((*root)->size > target->size ||
                  (((*root)->size == target->size) && (*root >= target)))
-            break;
+            root = &(*root)->l;
         else
             root = &(*root)->r;
     }
@@ -45,18 +43,20 @@ static block_t **find_node(block_t **root, block_t *target)
 
 static block_t **find_node_by_size(block_t **root, size_t size)
 {
+    block_t **ret = NULL;
     while (*root) {
-        if ((*root)->l && ((*root)->l->size >= size))
+        if ((*root)->size == size)
+            return root;
+        else if (((*root)->size >= size)) {
+            ret = root;
             root = &(*root)->l;
-        else if ((*root)->size >= size)
-            break;
-        else
+        } else
             root = &(*root)->r;
     }
-    if (!(*root))
+    if (!ret)
         return NULL;
 
-    return root;
+    return ret;
 }
 
 
